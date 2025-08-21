@@ -5,13 +5,17 @@ import (
 	"net/http"
 	"time"
 
+	db "gin/basic/db"
 	models "gin/basic/models"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	fmt.Print("Golang Basic", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
+	fmt.Println("Golang Basic", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
+
+	db.InitDB()
+	fmt.Println("Init DB")
 
 	server := gin.Default()
 
@@ -23,7 +27,14 @@ func main() {
 }
 
 func basicHandler(context *gin.Context) {
-	events := models.GetEvents()
+	events, err := models.GetEvents()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to gets Events",
+			"error":   err,
+		})
+		return
+	}
 	context.JSON(http.StatusOK, events)
 }
 
@@ -41,7 +52,15 @@ func createEvents(context *gin.Context) {
 	event.ID = 1
 	event.UserID = 1
 
-	event.SaveEvent()
+	err = event.SaveEvent()
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to Save Event",
+			"error":   err,
+		})
+		return
+	}
 
 	context.JSON(http.StatusCreated, gin.H{
 		"message": "Event Created",
