@@ -28,7 +28,15 @@ What does it mean for an object to be iterable?????
 
 But an iterable are generalyy not a sequence type iterables are more general  
 
+Set is iterable but not sequence,
+Iterables are general.
 
+Standard sequence methods
+
+x in s
+x not in s
+
+ 
     prefer using a string of character 
 
 
