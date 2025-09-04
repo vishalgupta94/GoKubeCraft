@@ -16,6 +16,55 @@ type Event struct {
 
 var events = []Event{}
 
+
+func DeleteEvent(id int64) error {
+	query := "Delete from events where id = ? "
+
+	statement, err := db.DB.Prepare(query)
+
+	if err != nil {
+		fmt.Println("delete", err)
+		return err
+	}
+
+	_, err = statement.Exec(id)
+
+    return err
+}
+
+func UpdateEvent(event Event)  error{
+	query := "update events SET name = ? ,description = ? ,datetime = ? where id = ?"
+
+	statement, err := db.DB.Prepare(query)
+
+	if err != nil {
+		fmt.Println("1", err)
+		return err
+	}
+
+	_, err = statement.Exec(event.Name,event.Description,event.Datetime,event.ID)
+
+    return err
+}
+
+func GetEventById(id int64) (*Event,error){
+	query := "Select * FROM events WHERE id = ?";
+
+	row := db.DB.QueryRow(query, id)
+    
+	var event Event;
+
+    err := row.Scan(&event.ID,&event.Name,&event.Description,&event.Datetime,&event.UserID)
+
+	if err!= nil {
+	  print("1 Error",err)
+	  return nil, err
+	}
+
+    return &event, nil
+
+}
+
 func (e Event) SaveEvent() error {
 	query := `INSERT INTO events(name,description,datetime,userId) values(?,?,?,?)`
 
