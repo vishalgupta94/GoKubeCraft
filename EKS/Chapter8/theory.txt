@@ -1,0 +1,38 @@
+aws iam create-policy \
+    --policy-name AWSLoadBalancerControllerIAMPolicy \
+    --policy-document file://iam_policy_latest.json \
+     --region ap-south-1 --profile profile339713054130
+
+     arn:aws:iam::339713054130:policy/AWSLoadBalancerControllerIAMPolicy
+
+eksctl create iamserviceaccount \
+  --cluster=eksdemo2 \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --attach-policy-arn=arn:aws:iam::339713054130:policy/AWSLoadBalancerControllerIAMPolicy \
+  --override-existing-serviceaccounts \
+  --approve --region ap-south-1 --profile profile339713054130     
+
+  eksctl  get iamserviceaccount --cluster eksdemo2 --region ap-south-1 --profile profile339713054130     
+
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=eksdemo2 \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller \
+  --set region=ap-south-1 \
+  --set vpcId=vpc-01284df9dbe1fd5b9 \
+  --set image.repository=public.ecr.aws/eks/aws-load-balancer-controller
+
+
+  kubectl -n kube-system gert deployment
+
+  kubectl -n kube-system describe deployment  aws-load-balancer-controller
+
+
+kubectl delete deployment app1-nginx-deployment
+  kubectl delete service app1-nginx-nodeport-service
+
+
+  aws rds describe-db-engine-versions --engine aurora-postgresql --query '*[].[EngineVersion]' --output text --region ap-south-1 --profile profile339713054130     
